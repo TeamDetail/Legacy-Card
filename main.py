@@ -1,23 +1,21 @@
-import google.generativeai as genai
 import mysql.connector
 from mysql.connector import Error
 import time
 import os
 
-
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 DB_CONFIG = {
-    'host': os.getenv('DB_HOST'),
-    'database': os.getenv('DB_NAME'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD')
+    # 'host': os.getenv('DB_HOST'),
+    # 'database': os.getenv('DB_NAME'),
+    # 'user': os.getenv('DB_USER'),
+    # 'password': os.getenv('DB_PASSWORD')
+    'database': 'legacy',
+    'user': 'root',
+    'password': 'n9800211'
 }
 
-genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-1.0-pro')
-
+# 키워드로 속성 추가
 NATION_RULES = [
-    {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},
+    {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'}, # 이 규칙은 아래로 이동
     {'keyword': '고구려', 'store_template': '삼국시대 팩', 'attribute': '고구려'},
     {'keyword': '신라', 'store_template': '삼국시대 팩', 'attribute': '신라'},
     {'keyword': '백제', 'store_template': '삼국시대 팩', 'attribute': '백제'},
@@ -47,29 +45,75 @@ REGION_RULES = [
     {'keyword': '제주', 'store_template': '제주도 팩', 'attribute': '제주'},
 ]
 
-def get_line_attribute_from_ai(ruin_name):
-    """AI에게 유적 이름을 보내 '계열' 속성을 직접 물어보는 함수"""
-    try:
-        prompt = f"""당신은 한국 문화재를 분류하는 역사 전문가입니다.
-        주어진 문화재 이름을 보고 다음 보기 중에서 가장 적합한 분류를 단 하나만 선택하세요.
-        보기: [상징, 신앙, 학문, 체제, 놀이, 기술, 의식주]
-        다른 설명은 일절 추가하지 말고, 오직 보기에 있는 단어 하나만 한국어로 답변해야 합니다.
-        문화재 이름: "{ruin_name}"
-        """
-        response = model.generate_content(prompt)
-        clean_response = response.text.strip()
+LINE_RULES = [
+    {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},  # 삼국 규칙을 LINE_RULES로 이동
+    {'keyword': '경', 'store_template': '역사&학문 팩', 'attribute': '학문'},
+    {'keyword': '책', 'store_template': '역사&학문 팩', 'attribute': '학문'},
+    {'keyword': '서원', 'store_template': '역사&학문 팩', 'attribute': '학문'},
+    {'keyword': '향교', 'store_template': '역사&학문 팩', 'attribute': '학문'},
+    {'keyword': '성균관', 'store_template': '역사&학문 팩', 'attribute': '학문'},
+    {'keyword': '사', 'store_template': '신앙&기술 팩', 'attribute': '신앙'},
+    {'keyword': '암', 'store_template': '신앙&기술 팩', 'attribute': '신앙'},
+    {'keyword': '탑', 'store_template': '신앙&기술 팩', 'attribute': '신앙'},
+    {'keyword': '부도', 'store_template': '신앙&기술 팩', 'attribute': '신앙'},
+    {'keyword': '사지', 'store_template': '신앙&기술 팩', 'attribute': '신앙'},
+    {'keyword': '석불', 'store_template': '신앙&기술 팩', 'attribute': '신앙'},
+    {'keyword': '미륵', 'store_template': '신앙&기술 팩', 'attribute': '신앙'},
+    {'keyword': '당간지주', 'store_template': '신앙&기술 팩', 'attribute': '신앙'},
+    {'keyword': '궁', 'attribute': '상징'}, {'keyword': '릉', 'attribute': '상징'},
+    {'keyword': '총', 'attribute': '상징'}, {'keyword': '원', 'attribute': '상징'},
+    {'keyword': '묘', 'attribute': '상징'}, {'keyword': '문', 'attribute': '체제'},
+    {'keyword': '대', 'attribute': '놀이'}, {'keyword': '루', 'attribute': '놀이'},
+    {'keyword': '정', 'attribute': '놀이'}, {'keyword': '성', 'attribute': '체제'},
+    {'keyword': '성곽', 'attribute': '체제'}, {'keyword': '읍성', 'attribute': '체제'},
+    {'keyword': '진', 'attribute': '체제'}, {'keyword': '보', 'attribute': '체제'},
+    {'keyword': '돈대', 'attribute': '체제'}, {'keyword': '봉수대', 'attribute': '체제'},
+    {'keyword': '고분', 'attribute': '의식주'}, {'keyword': '가마터', 'attribute': '기술'},
+    {'keyword': '집터', 'attribute': '의식주'}, {'keyword': '고인돌', 'attribute': '의식주'},
+    {'keyword': '선돌', 'attribute': '의식주'},
+]
 
-        valid_categories = ["상징", "신앙", "학문", "체제", "놀이", "기술", "의식주"]
-        if clean_response in valid_categories:
-            print(f"   [AI 분석] '{ruin_name}' -> '{clean_response}'")
-            return clean_response
-        else:
-            print(f"   [AI 경고] '{ruin_name}'에 대한 AI의 답변이 유효하지 않음: {clean_response}")
-            return None
 
-    except Exception as e:
-        print(f"   [AI 오류] API 호출 중 문제 발생: {e}")
-        return None
+def get_line_attribute_from_rules(ruin_name):
+    """유적 이름을 보고 규칙 기반으로 '계열' 속성을 판단하는 함수"""
+    if ruin_name:
+        for rule in LINE_RULES:
+            if rule['keyword'] in ruin_name:
+                print(f"   [규칙 분석] '{ruin_name}' -> '{rule['attribute']}'")
+                return rule['attribute']
+
+    print(f"   [기본값] '{ruin_name}' -> '역사'")
+    return '역사'
+
+
+def get_region_attribute_from_rules(detail_address, category):
+    """주소와 카테고리를 보고 '지역' 속성을 판단하는 함수"""
+    if detail_address:
+        for rule in REGION_RULES:
+            if rule['keyword'] in detail_address:
+                print(f"   [규칙 분석] '{detail_address}' -> '{rule['attribute']}'")
+                return rule['attribute']
+
+    if category:
+        for rule in REGION_RULES:
+            if rule['keyword'] in category:
+                print(f"   [규칙 분석] '{category}' -> '{rule['attribute']}'")
+                return rule['attribute']
+
+    print(f"   [기본값] 지역 정보 없음 -> '경기' (서울)")
+    return '경기'
+
+
+def get_nation_attribute_from_rules(period_name):
+    """시대 정보를 보고 '시대' 속성을 판단하는 함수"""
+    if period_name:
+        for rule in NATION_RULES:
+            if rule['keyword'] in period_name:
+                print(f"   [규칙 분석] '{period_name}' -> '{rule['attribute']}'")
+                return rule['attribute']
+
+    print(f"   [기본값] 시대 정보 없음 -> '대한제국'")
+    return '대한제국'
 
 
 def get_mappings(cursor):
@@ -80,7 +124,7 @@ def get_mappings(cursor):
     mappings['store'] = {name: id for id, name in cursor.fetchall()}
 
     cursor.execute("SELECT nation_attribute_id, attribute_name FROM nation_attribute")
-    mappings['nation'] = {name: id for id, name in cursor.fetchall()}
+    mappings['nation'] = {name.strip(): id for id, name in cursor.fetchall()}
 
     cursor.execute("SELECT line_attribute_id, attribute_name FROM line_attribute")
     mappings['line'] = {name: id for id, name in cursor.fetchall()}
@@ -91,47 +135,60 @@ def get_mappings(cursor):
     return mappings
 
 
-def determine_card_properties(ruin_name, period_name, detail_address):
-    """(시대 -> 지역)은 규칙으로, (계열)은 AI API로 판단하여 속성을 누적합니다."""
+def determine_card_properties(ruin_name, period_name, detail_address, category):
+    """시대, 지역, 계열 속성을 각각 판단하고 반환합니다."""
     store_name = None
-    attributes = []
+    nation_attr_name = None
+    region_attr_name = None
+    line_attr_name = None
 
+    # ▼▼▼▼▼ [수정된 부분] nation과 line 속성 판단 로직을 분리 ▼▼▼▼▼
+    # 먼저 시대(nation)를 판단
     if period_name:
         for rule in NATION_RULES:
             if rule['keyword'] in period_name:
                 store_name = rule['store_template']
-                attributes.append(rule['attribute'])
+                nation_attr_name = rule['attribute']
                 break
 
-    if detail_address:
-        for rule in REGION_RULES:
-            if rule['keyword'] in detail_address:
-                if not store_name:
+    # 다음으로 계열(line)을 판단 (새로운 함수 대신 여기에 로직 통합)
+    if ruin_name:
+        for rule in LINE_RULES:
+            if rule['keyword'] in ruin_name:
+                line_attr_name = rule['attribute']
+                # 삼국 규칙이 발견되면 store_name도 설정
+                if rule['keyword'] == '삼국':
                     store_name = rule['store_template']
-                attributes.append(rule['attribute'])
                 break
+    # ▼▼▼▼▼ [수정된 부분] ▲▲▲▲▲
 
-    line_attribute = get_line_attribute_from_ai(ruin_name)
-    if line_attribute:
-        attributes.append(line_attribute)
-        # ▼▼▼▼▼ [핵심 수정] store가 없을 때, AI가 판단한 계열에 따라 store를 할당 ▼▼▼▼▼
-        if not store_name:
-            if line_attribute == "학문":
-                store_name = "역사&학문 팩"
-            elif line_attribute == "기술":
-                store_name = "신앙&기술 팩"
-            elif line_attribute == "체제":
-                store_name = "신앙&체제 팩"  # 이미지에 맞춰 수정
-            elif line_attribute in ["놀이", "의식주"]:
-                store_name = "놀이&의식주 팩"
-            else:
-                store_name = "신앙&체제 팩"  # 그 외 나머지는 기본값으로 할당
+    # 지역 속성 판단
+    region_attr_name = get_region_attribute_from_rules(detail_address, category)
 
-    unique_attributes = list(dict.fromkeys(attributes))
+    # store가 없을 때, 계열에 따라 store를 할당
+    if not store_name:
+        if line_attr_name in ["학문", "역사"]:
+            store_name = "역사&학문 팩"
+        elif line_attr_name in ["기술", "신앙"]:
+            store_name = "신앙&기술 팩"
+        elif line_attr_name in ["체제", "상징"]:
+            store_name = "신앙&체제 팩"
+        elif line_attr_name in ["놀이", "의식주"]:
+            store_name = "놀이&의식주 팩"
+
+    # nation_attr_name이 없으면 기본값 '대한제국' 할당
+    if not nation_attr_name:
+        nation_attr_name = '대한제국'
+
+    # line_attr_name이 없으면 기본값 '역사' 할당
+    if not line_attr_name:
+        line_attr_name = '역사'
 
     return {
         'store_name': store_name,
-        'attributes': unique_attributes
+        'nation_attribute_name': nation_attr_name,
+        'region_attribute_name': region_attr_name,
+        'line_attribute_name': line_attr_name
     }
 
 
@@ -145,44 +202,39 @@ def generate_cards():
         mappings = get_mappings(cursor)
         print("✅ 매핑 정보 로딩 완료")
 
-        cursor.execute("SELECT ruins_id, name, ruins_image, period_name, detail_address FROM ruins")
+        cursor.execute("SELECT ruins_id, name, ruins_image, period_name, detail_address, category FROM ruins")
         ruins_data = cursor.fetchall()
-        print(f"🏛️ {len(ruins_data)}개의 유적 데이터 조회 완료. AI 분석을 시작합니다...")
+        print(f"🏛️ {len(ruins_data)}개의 유적 데이터 조회 완료. 규칙 기반 분석을 시작합니다...")
 
         cards_to_insert = []
 
-        for ruin_id, ruin_name, ruin_image, period_name, detail_address in ruins_data:
-            properties = determine_card_properties(ruin_name, period_name, detail_address)
-            time.sleep(1)
+        for ruin_id, ruin_name, ruin_image, period_name, detail_address, category in ruins_data:
+            properties = determine_card_properties(ruin_name, period_name, detail_address, category)
 
             store_name = properties['store_name']
-            attribute_names = properties['attributes']
+            nation_attr_name = properties['nation_attribute_name']
+            region_attr_name = properties['region_attribute_name']
+            line_attr_name = properties['line_attribute_name']
 
             store_id = mappings['store'].get(store_name)
             if not store_id:
                 print(f"⚠️ 경고: '{ruin_name}'에 대한 store '{store_name}'를 찾을 수 없습니다. 건너뜁니다.")
                 continue
 
-            attr_ids = []
-            for attr_name in attribute_names[:3]:
-                attr_id = mappings['nation'].get(attr_name) or \
-                          mappings['line'].get(attr_name) or \
-                          mappings['region'].get(attr_name)
-                if attr_id:
-                    attr_ids.append(attr_id)
-
-            attr_ids.extend([None] * (3 - len(attr_ids)))
+            nation_attr_id = mappings['nation'].get(nation_attr_name.strip())
+            region_attr_id = mappings['region'].get(region_attr_name.strip())
+            line_attr_id = mappings['line'].get(line_attr_name.strip())
 
             card_data = (
                 ruin_id, ruin_name, ruin_image, store_id,
-                attr_ids[0], attr_ids[1], attr_ids[2]
+                region_attr_id, nation_attr_id, line_attr_id
             )
             cards_to_insert.append(card_data)
 
         if cards_to_insert:
             sql = """
                   INSERT INTO card (ruins_id, card_name, card_image_url, store_id, \
-                                    attribute_1_id, attribute_2_id, attribute_3_id) \
+                                    region_attribute_id, nation_attribute_id, line_attribute_id) \
                   VALUES (%s, %s, %s, %s, %s, %s, %s) \
                   """
             cursor.executemany(sql, cards_to_insert)
