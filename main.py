@@ -73,7 +73,7 @@ LINE_RULES = [
     {'keyword': '선돌', 'attribute': '의식주'},
 ]
 
-
+# 가본 값 추가
 def get_line_attribute_from_rules(ruin_name):
     """유적 이름을 보고 규칙 기반으로 '계열' 속성을 판단하는 함수"""
     if ruin_name:
