@@ -87,7 +87,6 @@ def get_line_attribute_from_rules(ruin_name):
 
 
 def get_region_attribute_from_rules(detail_address, category):
-    """주소와 카테고리를 보고 '지역' 속성을 판단하는 함수"""
     if detail_address:
         for rule in REGION_RULES:
             if rule['keyword'] in detail_address:
