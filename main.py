@@ -141,8 +141,7 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
     region_attr_name = None
     line_attr_name = None
 
-    # ▼▼▼▼▼ [수정된 부분] nation과 line 속성 판단 로직을 분리 ▼▼▼▼▼
-    # 먼저 시대(nation)를 판단
+    # 먼저 시대(nation)를 판단p
     if period_name:
         for rule in NATION_RULES:
             if rule['keyword'] in period_name:
