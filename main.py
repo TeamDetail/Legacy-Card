@@ -158,7 +158,6 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
                 if rule['keyword'] == '삼국':
                     store_name = rule['store_template']
                 break
-    # ▼▼▼▼▼ [수정된 부분] ▲▲▲▲▲
 
     # 지역 속성 판단
     region_attr_name = get_region_attribute_from_rules(detail_address, category)
