@@ -190,7 +190,6 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
 
 
 def generate_cards():
-    """메인 실행 함수"""
     connection = None
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
