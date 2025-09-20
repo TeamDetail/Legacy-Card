@@ -140,7 +140,6 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
     region_attr_name = None
     line_attr_name = None
 
-    # 먼저 시대(nation)를 판단p
     if period_name:
         for rule in NATION_RULES:
             if rule['keyword'] in period_name:
