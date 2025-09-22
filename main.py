@@ -147,7 +147,6 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
                 nation_attr_name = rule['attribute']
                 break
 
-    # 다음으로 계열(line)을 판단 (새로운 함수 대신 여기에 로직 통합)
     if ruin_name:
         for rule in LINE_RULES:
             if rule['keyword'] in ruin_name:
