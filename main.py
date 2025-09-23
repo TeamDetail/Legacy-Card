@@ -13,7 +13,6 @@ DB_CONFIG = {
     'password': 'n9800211'
 }
 
-# 키워드로 속성 추가
 NATION_RULES = [
     {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'}, # 이 규칙은 아래로 이동
     {'keyword': '고구려', 'store_template': '삼국시대 팩', 'attribute': '고구려'},
