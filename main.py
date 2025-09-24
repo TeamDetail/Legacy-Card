@@ -14,7 +14,7 @@ DB_CONFIG = {
 }
 
 NATION_RULES = [
-    {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'}, # 이 규칙은 아래로 이동
+    {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},
     {'keyword': '고구려', 'store_template': '삼국시대 팩', 'attribute': '고구려'},
     {'keyword': '신라', 'store_template': '삼국시대 팩', 'attribute': '신라'},
     {'keyword': '백제', 'store_template': '삼국시대 팩', 'attribute': '백제'},
