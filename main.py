@@ -45,7 +45,7 @@ REGION_RULES = [
 ]
 
 LINE_RULES = [
-    {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},  # 삼국 규칙을 LINE_RULES로 이동
+    {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},
     {'keyword': '경', 'store_template': '역사&학문 팩', 'attribute': '학문'},
     {'keyword': '책', 'store_template': '역사&학문 팩', 'attribute': '학문'},
     {'keyword': '서원', 'store_template': '역사&학문 팩', 'attribute': '학문'},
