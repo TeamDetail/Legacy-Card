@@ -150,7 +150,6 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
         for rule in LINE_RULES:
             if rule['keyword'] in ruin_name:
                 line_attr_name = rule['attribute']
-                # 삼국 규칙이 발견되면 store_name도 설정
                 if rule['keyword'] == '삼국':
                     store_name = rule['store_template']
                 break
