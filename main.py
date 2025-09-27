@@ -154,7 +154,6 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
                     store_name = rule['store_template']
                 break
 
-    # 지역 속성 판단
     region_attr_name = get_region_attribute_from_rules(detail_address, category)
 
     # store가 없을 때, 계열에 따라 store를 할당
