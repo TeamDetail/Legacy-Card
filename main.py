@@ -156,7 +156,6 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
 
     region_attr_name = get_region_attribute_from_rules(detail_address, category)
 
-    # store가 없을 때, 계열에 따라 store를 할당
     if not store_name:
         if line_attr_name in ["학문", "역사"]:
             store_name = "역사&학문 팩"
