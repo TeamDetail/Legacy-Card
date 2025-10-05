@@ -166,7 +166,6 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
         elif line_attr_name in ["놀이", "의식주"]:
             store_name = "놀이&의식주 팩"
 
-    # nation_attr_name이 없으면 기본값 '대한제국' 할당
     if not nation_attr_name:
         nation_attr_name = '대한제국'
 
