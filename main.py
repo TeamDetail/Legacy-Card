@@ -169,7 +169,6 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
     if not nation_attr_name:
         nation_attr_name = '대한제국'
 
-    # line_attr_name이 없으면 기본값 '역사' 할당
     if not line_attr_name:
         line_attr_name = '역사'
 
