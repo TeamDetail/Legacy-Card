@@ -102,7 +102,6 @@ def get_region_attribute_from_rules(detail_address, category):
 
 
 def get_nation_attribute_from_rules(period_name):
-    """시대 정보를 보고 '시대' 속성을 판단하는 함수"""
     if period_name:
         for rule in NATION_RULES:
             if rule['keyword'] in period_name:
