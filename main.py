@@ -113,7 +113,6 @@ def get_nation_attribute_from_rules(period_name):
 
 
 def get_mappings(cursor):
-    """DB에서 store, attribute 정보를 가져와 파이썬 딕셔너리로 변환합니다."""
     mappings = {}
 
     cursor.execute("SELECT store_id, store_name FROM store")
