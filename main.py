@@ -131,7 +131,6 @@ def get_mappings(cursor):
 
 
 def determine_card_properties(ruin_name, period_name, detail_address, category):
-    """시대, 지역, 계열 속성을 각각 판단하고 반환합니다."""
     store_name = None
     nation_attr_name = None
     region_attr_name = None
