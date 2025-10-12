@@ -107,7 +107,7 @@ def get_nation_attribute_from_rules(period_name):
             if rule['keyword'] in period_name:
                 print(f"   [규칙 분석] '{period_name}' -> '{rule['attribute']}'")
                 return rule['attribute']
-
+    # 기본값
     print(f"   [기본값] 시대 정보 없음 -> '대한제국'")
     return '대한제국'
 
