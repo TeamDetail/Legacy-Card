@@ -12,7 +12,7 @@ DB_CONFIG = {
     'user': 'root',
     'password': 'n9800211'
 }
-
+# 값
 NATION_RULES = [
     {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},
     {'keyword': '고구려', 'store_template': '삼국시대 팩', 'attribute': '고구려'},
