@@ -236,6 +236,6 @@ def generate_cards():
             connection.close()
             print("MySQL 연결이 종료되었습니다.")
 
-
+# 실행
 if __name__ == '__main__':
     generate_cards()
