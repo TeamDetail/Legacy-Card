@@ -12,7 +12,7 @@ DB_CONFIG = {
     'user': 'root',
     'password': 'n9800211'
 }
-# 값
+# 시대
 NATION_RULES = [
     {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},
     {'keyword': '고구려', 'store_template': '삼국시대 팩', 'attribute': '고구려'},
@@ -24,6 +24,8 @@ NATION_RULES = [
     {'keyword': '대한제국', 'store_template': '대한민국 팩', 'attribute': '대한제국'},
     {'keyword': '일제강점기', 'store_template': '대한민국 팩', 'attribute': '대한민국'},
 ]
+
+
 REGION_RULES = [
     {'keyword': '서울', 'store_template': '경기도 팩', 'attribute': '경기'},
     {'keyword': '부산', 'store_template': '경상도 팩', 'attribute': '경남'},
