@@ -46,6 +46,7 @@ REGION_RULES = [
     {'keyword': '제주', 'store_template': '제주도 팩', 'attribute': '제주'},
 ]
 
+# 시대
 LINE_RULES = [
     {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},
     {'keyword': '경', 'store_template': '역사&학문 팩', 'attribute': '학문'},
