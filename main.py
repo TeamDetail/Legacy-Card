@@ -4,14 +4,15 @@ import time
 import os
 
 DB_CONFIG = {
-    # 'host': os.getenv('DB_HOST'),
-    # 'database': os.getenv('DB_NAME'),
-    # 'user': os.getenv('DB_USER'),
-    # 'password': os.getenv('DB_PASSWORD')
-    'database': 'legacy',
-    'user': 'root',
-    'password': 'n9800211'
+    'host': os.getenv('DB_HOST'),
+    'database': os.getenv('DB_NAME'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD')
+    # 'database': 'legacy',
+    # 'user': 'root',
+    # 'password': 'n9800211'
 }
+
 # 시대
 NATION_RULES = [
     {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},
@@ -25,7 +26,7 @@ NATION_RULES = [
     {'keyword': '일제강점기', 'store_template': '대한민국 팩', 'attribute': '대한민국'},
 ]
 
-
+# 지역
 REGION_RULES = [
     {'keyword': '서울', 'store_template': '경기도 팩', 'attribute': '경기'},
     {'keyword': '부산', 'store_template': '경상도 팩', 'attribute': '경남'},
@@ -46,7 +47,7 @@ REGION_RULES = [
     {'keyword': '제주', 'store_template': '제주도 팩', 'attribute': '제주'},
 ]
 
-# 시대
+# 계열
 LINE_RULES = [
     {'keyword': '삼국', 'store_template': '삼국시대 팩', 'attribute': '역사'},
     {'keyword': '경', 'store_template': '역사&학문 팩', 'attribute': '학문'},
@@ -74,48 +75,16 @@ LINE_RULES = [
     {'keyword': '집터', 'attribute': '의식주'}, {'keyword': '고인돌', 'attribute': '의식주'},
     {'keyword': '선돌', 'attribute': '의식주'},
 ]
-# 기본 값 설정
-def get_line_attribute_from_rules(ruin_name):
-    """유적 이름을 보고 규칙 기반으로 '계열' 속성을 판단하는 함수"""
-    if ruin_name:
-        for rule in LINE_RULES:
-            if rule['keyword'] in ruin_name:
-                print(f"   [규칙 분석] '{ruin_name}' -> '{rule['attribute']}'")
-                return rule['attribute']
 
-    print(f"   [기본값] '{ruin_name}' -> '역사'")
-    return '역사'
-
-
-def get_region_attribute_from_rules(detail_address, category):
-    if detail_address:
-        for rule in REGION_RULES:
-            if rule['keyword'] in detail_address:
-                print(f"   [규칙 분석] '{detail_address}' -> '{rule['attribute']}'")
-                return rule['attribute']
-
-    if category:
-        for rule in REGION_RULES:
-            if rule['keyword'] in category:
-                print(f"   [규칙 분석] '{category}' -> '{rule['attribute']}'")
-                return rule['attribute']
-
-    print(f"   [기본값] 지역 정보 없음 -> '경기' (서울)")
-    return '경기'
-
-
-def get_nation_attribute_from_rules(period_name):
-    if period_name:
-        for rule in NATION_RULES:
-            if rule['keyword'] in period_name:
-                print(f"   [규칙 분석] '{period_name}' -> '{rule['attribute']}'")
-                return rule['attribute']
-    # 기본값
-    print(f"   [기본값] 시대 정보 없음 -> '대한제국'")
-    return '대한제국'
+# 기본값 상수
+DEFAULT_STORE = '역사&학문 팩'
+DEFAULT_NATION = '대한제국'
+DEFAULT_REGION = '서울'
+DEFAULT_LINE = '역사'
 
 
 def get_mappings(cursor):
+    """DB의 모든 매핑 정보를 가져오는 함수"""
     mappings = {}
 
     cursor.execute("SELECT store_id, store_name FROM store")
@@ -125,38 +94,64 @@ def get_mappings(cursor):
     mappings['nation'] = {name.strip(): id for id, name in cursor.fetchall()}
 
     cursor.execute("SELECT line_attribute_id, attribute_name FROM line_attribute")
-    mappings['line'] = {name: id for id, name in cursor.fetchall()}
+    mappings['line'] = {name.strip(): id for id, name in cursor.fetchall()}
 
     cursor.execute("SELECT region_attribute_id, attribute_name FROM region_attribute")
-    mappings['region'] = {name: id for id, name in cursor.fetchall()}
+    mappings['region'] = {name.strip(): id for id, name in cursor.fetchall()}
 
     return mappings
 
 
-def determine_card_properties(ruin_name, period_name, detail_address, category):
+def get_existing_card_ruins_ids(cursor):
+    """이미 카드로 생성된 유적 ID 목록을 가져오는 함수"""
+    cursor.execute("SELECT ruins_id FROM card")
+    existing_ids = {row[0] for row in cursor.fetchall()}
+    return existing_ids
+
+
+def determine_card_properties(ruin_name, period_name, detail_address, category, mappings):
+    """유적 정보를 기반으로 카드 속성을 결정하는 함수 (기본값 보장)"""
     store_name = None
     nation_attr_name = None
     region_attr_name = None
     line_attr_name = None
 
+    # 1. 시대 정보로 store와 nation 결정
     if period_name:
         for rule in NATION_RULES:
             if rule['keyword'] in period_name:
                 store_name = rule['store_template']
                 nation_attr_name = rule['attribute']
+                print(f"   [시대 분석] '{period_name}' -> store: '{store_name}', nation: '{nation_attr_name}'")
                 break
 
+    # 2. 유적 이름으로 계열(line) 결정
     if ruin_name:
         for rule in LINE_RULES:
             if rule['keyword'] in ruin_name:
                 line_attr_name = rule['attribute']
-                if rule['keyword'] == '삼국':
+                if rule['keyword'] == '삼국' and not store_name:
                     store_name = rule['store_template']
+                print(f"   [계열 분석] '{ruin_name}' -> line: '{line_attr_name}'")
                 break
 
-    region_attr_name = get_region_attribute_from_rules(detail_address, category)
+    # 3. 주소/카테고리로 지역 결정
+    if detail_address:
+        for rule in REGION_RULES:
+            if rule['keyword'] in detail_address:
+                region_attr_name = rule['attribute']
+                print(f"   [지역 분석] '{detail_address}' -> region: '{region_attr_name}'")
+                break
 
-    if not store_name:
+    if not region_attr_name and category:
+        for rule in REGION_RULES:
+            if rule['keyword'] in category:
+                region_attr_name = rule['attribute']
+                print(f"   [카테고리 분석] '{category}' -> region: '{region_attr_name}'")
+                break
+
+    # 4. store가 없으면 계열에 따라 결정
+    if not store_name and line_attr_name:
         if line_attr_name in ["학문", "역사"]:
             store_name = "역사&학문 팩"
         elif line_attr_name in ["기술", "신앙"]:
@@ -165,18 +160,53 @@ def determine_card_properties(ruin_name, period_name, detail_address, category):
             store_name = "신앙&체제 팩"
         elif line_attr_name in ["놀이", "의식주"]:
             store_name = "놀이&의식주 팩"
+        print(f"   [Store 추론] line '{line_attr_name}' -> store: '{store_name}'")
+
+    # 5. 기본값 적용 (무조건 값이 있도록 보장)
+    if not store_name:
+        store_name = DEFAULT_STORE
+        print(f"   [기본값] store -> '{DEFAULT_STORE}'")
 
     if not nation_attr_name:
-        nation_attr_name = '대한제국'
+        nation_attr_name = DEFAULT_NATION
+        print(f"   [기본값] nation -> '{DEFAULT_NATION}'")
+
+    if not region_attr_name:
+        region_attr_name = DEFAULT_REGION
+        print(f"   [기본값] region -> '{DEFAULT_REGION}'")
 
     if not line_attr_name:
-        line_attr_name = '역사'
+        line_attr_name = DEFAULT_LINE
+        print(f"   [기본값] line -> '{DEFAULT_LINE}'")
+
+    # 6. 매핑 테이블에서 ID 찾기
+    store_id = mappings['store'].get(store_name)
+    nation_attr_id = mappings['nation'].get(nation_attr_name.strip())
+    region_attr_id = mappings['region'].get(region_attr_name.strip())
+    line_attr_id = mappings['line'].get(line_attr_name.strip())
+
+    # 7. ID가 없으면 첫 번째 항목 사용
+    if not store_id and mappings['store']:
+        store_id = list(mappings['store'].values())[0]
+        print(f"   [경고] store ID를 찾을 수 없어 첫 번째 store 사용")
+
+    if not nation_attr_id and mappings['nation']:
+        nation_attr_id = list(mappings['nation'].values())[0]
+        print(f"   [경고] nation ID를 찾을 수 없어 첫 번째 nation 사용")
+
+    if not region_attr_id and mappings['region']:
+        region_attr_id = list(mappings['region'].values())[0]
+        print(f"   [경고] region ID를 찾을 수 없어 첫 번째 region 사용")
+
+    if not line_attr_id and mappings['line']:
+        line_attr_id = list(mappings['line'].values())[0]
+        print(f"   [경고] line ID를 찾을 수 없어 첫 번째 line 사용")
 
     return {
-        'store_name': store_name,
-        'nation_attribute_name': nation_attr_name,
-        'region_attribute_name': region_attr_name,
-        'line_attribute_name': line_attr_name
+        'store_id': store_id,
+        'nation_attr_id': nation_attr_id,
+        'region_attr_id': region_attr_id,
+        'line_attr_id': line_attr_id
     }
 
 
@@ -186,58 +216,86 @@ def generate_cards():
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
 
+        # 매핑 정보 로딩
         mappings = get_mappings(cursor)
-        print("✅ 매핑 정보 로딩 완료")
+        print("매핑 정보 로딩 완료")
+        print(f"   - Store: {len(mappings['store'])}개")
+        print(f"   - Nation: {len(mappings['nation'])}개")
+        print(f"   - Region: {len(mappings['region'])}개")
+        print(f"   - Line: {len(mappings['line'])}개")
 
+        # 이미 카드로 생성된 유적 ID 가져오기
+        existing_card_ruins_ids = get_existing_card_ruins_ids(cursor)
+        print(f"이미 생성된 카드: {len(existing_card_ruins_ids)}개")
+
+        # 전체 유적 데이터 조회
         cursor.execute("SELECT ruins_id, name, ruins_image, period_name, detail_address, category FROM ruins")
         ruins_data = cursor.fetchall()
-        print(f"🏛️ {len(ruins_data)}개의 유적 데이터 조회 완료. 규칙 기반 분석을 시작합니다...")
+        print(f"전체 유적: {len(ruins_data)}개")
+
+        # 카드가 없는 유적만 필터링
+        new_ruins = [ruin for ruin in ruins_data if ruin[0] not in existing_card_ruins_ids]
+        print(f"생성할 새로운 카드: {len(new_ruins)}개")
+
+        if not new_ruins:
+            print("모든 유적이 이미 카드로 생성되어 있습니다!")
+            return
 
         cards_to_insert = []
+        skipped_count = 0
 
-        for ruin_id, ruin_name, ruin_image, period_name, detail_address, category in ruins_data:
-            properties = determine_card_properties(ruin_name, period_name, detail_address, category)
+        for ruin_id, ruin_name, ruin_image, period_name, detail_address, category in new_ruins:
+            print(f"\n[{len(cards_to_insert) + 1}/{len(new_ruins)}] 유적 분석: {ruin_name} (ID: {ruin_id})")
 
-            store_name = properties['store_name']
-            nation_attr_name = properties['nation_attribute_name']
-            region_attr_name = properties['region_attribute_name']
-            line_attr_name = properties['line_attribute_name']
+            properties = determine_card_properties(
+                ruin_name, period_name, detail_address, category, mappings
+            )
 
-            store_id = mappings['store'].get(store_name)
-            if not store_id:
-                print(f"⚠️ 경고: '{ruin_name}'에 대한 store '{store_name}'를 찾을 수 없습니다. 건너뜁니다.")
+            # 모든 ID가 있는지 확인
+            if not all([properties['store_id'], properties['nation_attr_id'],
+                        properties['region_attr_id'], properties['line_attr_id']]):
+                print(f"필수 속성을 찾을 수 없어 건너뜁니다.")
+                print(f"      store_id: {properties['store_id']}, nation: {properties['nation_attr_id']}, "
+                      f"region: {properties['region_attr_id']}, line: {properties['line_attr_id']}")
+                skipped_count += 1
                 continue
 
-            nation_attr_id = mappings['nation'].get(nation_attr_name.strip())
-            region_attr_id = mappings['region'].get(region_attr_name.strip())
-            line_attr_id = mappings['line'].get(line_attr_name.strip())
-
             card_data = (
-                ruin_id, ruin_name, ruin_image, store_id,
-                region_attr_id, nation_attr_id, line_attr_id
+                ruin_id,
+                ruin_name,
+                ruin_image,
+                properties['store_id'],
+                properties['region_attr_id'],
+                properties['nation_attr_id'],
+                properties['line_attr_id']
             )
             cards_to_insert.append(card_data)
+            print(f"카드 생성 준비 완료")
 
         if cards_to_insert:
             sql = """
-                  INSERT INTO card (ruins_id, card_name, card_image_url, store_id, \
-                                    region_attribute_id, nation_attribute_id, line_attribute_id) \
+                  INSERT INTO card (ruins_id, card_name, card_image_url, store_id,
+                                    region_attribute_id, nation_attribute_id, line_attribute_id)
                   VALUES (%s, %s, %s, %s, %s, %s, %s) \
                   """
             cursor.executemany(sql, cards_to_insert)
             connection.commit()
-            print(f"🎉 카드 {cursor.rowcount}개가 성공적으로 생성되었습니다!")
+            print(f"\n카드 {cursor.rowcount}개가 성공적으로 생성되었습니다!")
+            if skipped_count > 0:
+                print(f"건너뛴 유적: {skipped_count}개")
         else:
-            print("생성할 카드가 없습니다.")
+            print(f"\n생성할 수 있는 카드가 없습니다. (건너뛴 유적: {skipped_count}개)")
 
     except Error as e:
         print(f"DB 오류 발생: {e}")
-        if connection: connection.rollback()
+        if connection:
+            connection.rollback()
     finally:
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
-            print("MySQL 연결이 종료되었습니다.")
+            print("\nMySQL 연결이 종료되었습니다.")
+
 
 if __name__ == '__main__':
     generate_cards()
