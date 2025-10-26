@@ -216,7 +216,6 @@ def generate_cards():
         connection = mysql.connector.connect(**DB_CONFIG)
         cursor = connection.cursor()
 
-        # 매핑 정보 로딩
         mappings = get_mappings(cursor)
         print("매핑 정보 로딩 완료")
         print(f"   - Store: {len(mappings['store'])}개")
