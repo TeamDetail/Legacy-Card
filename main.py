@@ -110,7 +110,6 @@ def get_existing_card_ruins_ids(cursor):
 
 
 def determine_card_properties(ruin_name, period_name, detail_address, category, mappings):
-    """유적 정보를 기반으로 카드 속성을 결정하는 함수 (기본값 보장)"""
     store_name = None
     nation_attr_name = None
     region_attr_name = None
