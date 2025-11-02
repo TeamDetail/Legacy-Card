@@ -76,7 +76,6 @@ LINE_RULES = [
     {'keyword': '선돌', 'attribute': '의식주'},
 ]
 
-# 기본값 상수
 DEFAULT_STORE = '역사&학문 팩'
 DEFAULT_NATION = '대한제국'
 DEFAULT_REGION = '서울'
