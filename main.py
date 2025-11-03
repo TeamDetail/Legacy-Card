@@ -123,7 +123,7 @@ def determine_card_properties(ruin_name, period_name, detail_address, category, 
                 print(f"   [시대 분석] '{period_name}' -> store: '{store_name}', nation: '{nation_attr_name}'")
                 break
 
-    # 2. 유적 이름으로 계열(line) 결정
+    #유적 이름으로 계열(line) 결정
     if ruin_name:
         for rule in LINE_RULES:
             if rule['keyword'] in ruin_name:
