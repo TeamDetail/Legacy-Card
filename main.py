@@ -133,7 +133,7 @@ def determine_card_properties(ruin_name, period_name, detail_address, category, 
                 print(f"   [계열 분석] '{ruin_name}' -> line: '{line_attr_name}'")
                 break
 
-    # 3. 주소/카테고리로 지역 결정
+    #주소/카테고리로 지역 결정
     if detail_address:
         for rule in REGION_RULES:
             if rule['keyword'] in detail_address:
