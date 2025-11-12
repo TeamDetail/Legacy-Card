@@ -148,7 +148,7 @@ def determine_card_properties(ruin_name, period_name, detail_address, category, 
                 print(f"   [카테고리 분석] '{category}' -> region: '{region_attr_name}'")
                 break
 
-    # 4. store가 없으면 계열에 따라 결정
+    #store가 없으면 계열에 따라 결정
     if not store_name and line_attr_name:
         if line_attr_name in ["학문", "역사"]:
             store_name = "역사&학문 팩"
