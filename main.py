@@ -160,7 +160,7 @@ def determine_card_properties(ruin_name, period_name, detail_address, category, 
             store_name = "놀이&의식주 팩"
         print(f"   [Store 추론] line '{line_attr_name}' -> store: '{store_name}'")
 
-    # 5. 기본값 적용 (무조건 값이 있도록 보장)
+    #기본값 적용 (무조건 값이 있도록 보장)
     if not store_name:
         store_name = DEFAULT_STORE
         print(f"   [기본값] store -> '{DEFAULT_STORE}'")
