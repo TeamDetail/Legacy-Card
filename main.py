@@ -163,7 +163,7 @@ def determine_card_properties(ruin_name, period_name, detail_address, category, 
     #기본값 적용 (무조건 값이 있도록 보장)
     if not store_name:
         store_name = DEFAULT_STORE
-        print(f"   [기본값] store -> '{DEFAULT_STORE}'")
+        prin t(f"   [기본값] store -> '{DEFAULT_STORE}'")
 
     if not nation_attr_name:
         nation_attr_name = DEFAULT_NATION
@@ -177,7 +177,7 @@ def determine_card_properties(ruin_name, period_name, detail_address, category, 
         line_attr_name = DEFAULT_LINE
         print(f"   [기본값] line -> '{DEFAULT_LINE}'")
 
-    # 6. 매핑 테이블에서 ID 찾기
+    #매핑 테이블에서 ID 찾기
     store_id = mappings['store'].get(store_name)
     nation_attr_id = mappings['nation'].get(nation_attr_name.strip())
     region_attr_id = mappings['region'].get(region_attr_name.strip())
