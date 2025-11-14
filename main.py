@@ -163,7 +163,7 @@ def determine_card_properties(ruin_name, period_name, detail_address, category, 
     #기본값 적용 (무조건 값이 있도록 보장)
     if not store_name:
         store_name = DEFAULT_STORE
-        prin t(f"   [기본값] store -> '{DEFAULT_STORE}'")
+        print(f"   [기본값] store -> '{DEFAULT_STORE}'")
 
     if not nation_attr_name:
         nation_attr_name = DEFAULT_NATION
