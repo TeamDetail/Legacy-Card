@@ -183,7 +183,7 @@ def determine_card_properties(ruin_name, period_name, detail_address, category, 
     region_attr_id = mappings['region'].get(region_attr_name.strip())
     line_attr_id = mappings['line'].get(line_attr_name.strip())
 
-    # 7. ID가 없으면 첫 번째 항목 사용
+    #ID가 없으면 첫 번째 항목 사용
     if not store_id and mappings['store']:
         store_id = list(mappings['store'].values())[0]
         print(f"   [경고] store ID를 찾을 수 없어 첫 번째 store 사용")
