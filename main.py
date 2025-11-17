@@ -221,7 +221,7 @@ def generate_cards():
         print(f"   - Region: {len(mappings['region'])}개")
         print(f"   - Line: {len(mappings['line'])}개")
 
-        # 이미 카드로 생성된 유적 ID 가져오기
+        #이미 카드로 생성된 유적 ID 가져오기
         existing_card_ruins_ids = get_existing_card_ruins_ids(cursor)
         print(f"이미 생성된 카드: {len(existing_card_ruins_ids)}개")
 
