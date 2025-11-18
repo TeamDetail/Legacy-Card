@@ -225,7 +225,7 @@ def generate_cards():
         existing_card_ruins_ids = get_existing_card_ruins_ids(cursor)
         print(f"이미 생성된 카드: {len(existing_card_ruins_ids)}개")
 
-        # 전체 유적 데이터 조회
+        #전체 유적 데이터 조회
         cursor.execute("SELECT ruins_id, name, ruins_image, period_name, detail_address, category FROM ruins")
         ruins_data = cursor.fetchall()
         print(f"전체 유적: {len(ruins_data)}개")
