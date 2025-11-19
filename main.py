@@ -230,7 +230,7 @@ def generate_cards():
         ruins_data = cursor.fetchall()
         print(f"전체 유적: {len(ruins_data)}개")
 
-        # 카드가 없는 유적만 필터링
+        #카드가 없는 유적만 필터링
         new_ruins = [ruin for ruin in ruins_data if ruin[0] not in existing_card_ruins_ids]
         print(f"생성할 새로운 카드: {len(new_ruins)}개")
 
