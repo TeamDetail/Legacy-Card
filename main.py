@@ -248,7 +248,7 @@ def generate_cards():
                 ruin_name, period_name, detail_address, category, mappings
             )
 
-            # 모든 ID가 있는지 확인
+            #모든 ID가 있는지 확인
             if not all([properties['store_id'], properties['nation_attr_id'],
                         properties['region_attr_id'], properties['line_attr_id']]):
                 print(f"필수 속성을 찾을 수 없어 건너뜁니다.")
